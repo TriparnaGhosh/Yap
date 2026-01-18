@@ -3,6 +3,7 @@ import { ENV } from '../lib/ENV.js';
 import { generateToken } from '../lib/utils.js';
 import User from '../models/User.model.js';
 import bcrypt from 'bcryptjs';
+import cloudinary from '../lib/cloudinary.js';
 
 export const signup = async (req, res) => {
   const { fullName, email, password } = req.body
@@ -114,7 +115,11 @@ export const updateProfile = async (req, res) => {
       userId, 
       { profilePic: uploadResponse.secure_url }, 
       { new: true }
-    );
+    ).select('-password');
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     res.status(200).json(updatedUser);
   } catch (error) {
