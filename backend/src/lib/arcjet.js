@@ -2,7 +2,7 @@ import arcjet, { shield, detectBot, slidingWindow } from "@arcjet/node";
 import { ENV } from "./ENV.js";
 
 export const aj = arcjet({
-  key: ENV.ARCJET_KEY,
+  key: ENV.ARCJET_API,
   rules: [
     // Shield protects your app from common attacks e.g. SQL injection
     shield({ mode: "LIVE" }),
@@ -21,7 +21,7 @@ export const aj = arcjet({
     // Create a token bucket rate limit. Other algorithms are supported.
     slidingWindow({
       mode: "LIVE",
-      max: 100, // max 100 requests per window
+      max: 70, // max 70 requests per window
       interval: 60, // 60 seconds
     }),
   ],
