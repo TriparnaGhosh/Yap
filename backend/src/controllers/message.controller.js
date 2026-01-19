@@ -47,6 +47,18 @@ export const sendMessage = async (req, res) => {
         .status(400)
         .json({ message: "Either text or image is required." });
     }
+
+    if (senderId.equals(receiverId)) {
+      return res
+        .status(400)
+        .json({ message: "You cannot send messages to yourself." });
+    }
+
+    const receiverExists = await User.findById(receiverId);
+    if (!receiverExists) {
+      return res.status(404).json({ message: "Receiver not found." });
+    }
+
     let imageUrl;
 
     if (image) {
