@@ -1,34 +1,27 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react'
+import { Route, Routes } from 'react-router'
+import ChatPage from './pages/ChatPage'
+import LoginPage from './pages/LoginPage'
+import SignupPage from './pages/SignupPage.jsx'
 
-function App() {
-  const [count, setCount] = useState(0)
-
+const App = () => {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className='min-h-screen bg-slate-900 relative flex items-center justify-center p-4 overflow-hidden'>
+      
+      {/* Radial glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#38bdf8_0%,transparent_55%)] opacity-20" />
+
+      {/* Accent glow orbs */}
+      <div className="absolute top-20 left-20 w-80 h-80 bg-purple-500 opacity-20 blur-[140px] rounded-full" />
+      <div className="absolute bottom-20 right-20 w-80 h-80 bg-cyan-500 opacity-20 blur-[140px] rounded-full" />
+
+
+      <Routes>
+        <Route path="/" element={<ChatPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+      </Routes>
+    </div>
   )
 }
 
