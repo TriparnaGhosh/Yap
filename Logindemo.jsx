@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import BorderAnimatedContainer from '../components/BorderAnimatedContainer'
-import { MessageCircleIcon, LockIcon, MailIcon, LoaderIcon } from 'lucide-react';
+import { MessageCircleIcon, LockIcon, MailIcon, UserIcon, LoaderIcon } from 'lucide-react';
 import { Link } from 'react-router';
 import { useAuthStore } from '../store/useAuthStore.js';
 
@@ -19,33 +19,12 @@ const LoginPage = () => {
         <BorderAnimatedContainer>
           <div className='w-full flex flex-col md:flex-row'>
             {/* From column - Left Side */}
-            <div className="hidden md:w-1/2 md:flex items-center justify-center p-6 bg-gradient-to-bl from-slate-800/20 to-transparent md:border-r border-slate-600/30">
-              <div>
-                <img
-                  src="/login.png"
-                  alt="People using mobile devices"
-                  className="w-full h-auto object-contain"
-                />
-                <div className="mt-6 text-center">
-                  <h3 className="text-xl font-medium text-cyan-400">Connect Anytime, Anywhere</h3>
-
-                  <div className="mt-4 flex justify-center gap-4">
-                    <span className="auth-badge">Free</span>
-                    <span className="auth-badge">Easy Setup</span>
-                    <span className="auth-badge">Private</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-           
-
-            {/* Right Side - Decorative */}
-             <div className='md:w-1/2 p-8 flex items-center justify-center '>
+            <div className='md:w-1/2 p-8 flex items-center justify-center md:border-r border-slate-700/15'>
               <div className='w-full max-w-md'>
                 {/* Heading */}
                 <div className='text-center mb-8'>
                   <MessageCircleIcon className='w-12 h-12 mx-auto text-slate-400 mb-4' />
-                  <h2 className='text-2xl font-bold text-slate-200 mb-2'>Welcome Back !</h2>
+                  <h2 className='text-2xl font-bold text-slate-200 mb-2'>Welcome Back</h2>
                   <p className='text-slate-400'>Login to access your account</p>
                 </div>
 
@@ -102,6 +81,26 @@ const LoginPage = () => {
                 </div>
               </div>
             </div>
+
+            {/* Right Side - Decorative */}
+            <div className="hidden md:w-1/2 md:flex items-center justify-center p-6 bg-gradient-to-bl from-slate-800/20 to-transparent">
+              <div>
+                <img
+                  src="/login.png"
+                  alt="People using mobile devices"
+                  className="w-full h-auto object-contain"
+                />
+                <div className="mt-6 text-center">
+                  <h3 className="text-xl font-medium text-cyan-400">Connect Anytime, Anywhere</h3>
+
+                  <div className="mt-4 flex justify-center gap-4">
+                    <span className="auth-badge">Free</span>
+                    <span className="auth-badge">Easy Setup</span>
+                    <span className="auth-badge">Private</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </BorderAnimatedContainer>
       </div>
@@ -109,3 +108,56 @@ const LoginPage = () => {
   )
 }
 export default LoginPage
+
+import { create } from "zustand";
+import { axiosInstance } from "../lib/axios.js";
+import toast from "react-hot-toast";
+import { log } from "console";
+
+export const useAuthStore = create((set) => ({
+  authUser: null,
+  isCheckingAuth: true,
+  isSigningUp: false,
+  isLoggingIn: false,
+
+  checkAuth: async () => {
+    try {
+      const res = await axiosInstance.get("/auth/check");
+      set({ authUser: res.data });
+    } catch (error) {
+      console.log("Auth check failed:", error);
+      set({ authUser: null });
+    } finally {
+      set({ isCheckingAuth: false });
+    }
+  },
+
+  signup: async (data) => {
+    set({ isSigningUp: true });
+    try {
+      const res = await axiosInstance.post("/auth/signup", data);
+      set({ authUser: res.data });
+
+      toast.success("Account created successfully!");
+    } catch (error) {
+        toast.error(error.response.data.message);
+    } finally {
+      set({ isSigningUp: false });
+    }
+  },
+
+  login: async (data) => {
+    set({ isLoggingIn : true });
+    try {
+      const res = await axiosInstance.post("/auth/login", data);
+      set({ authUser: res.data });
+
+      toast.success("Logged in successfully!");
+    } catch (error) {
+        toast.error(error.response.data.message);
+    } finally {
+      set({ isLoggingIn: false });
+    }
+  },
+
+}));
