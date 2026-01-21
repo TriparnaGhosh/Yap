@@ -5,7 +5,7 @@ import NoChatsFound from './NoChatsFound'
 
 const ChatList = () => {
 
-  const { getMyChats, chats, isUserLoading, setSelectedUser } = useChatStore()
+  const { getMyChats, chats, isUserLoading, setSelectedChat } = useChatStore()
 
 
   useEffect(() => {
@@ -21,7 +21,7 @@ const ChatList = () => {
         <div
           key={chat._id}
           className='bg-cyan-500/10 p-4 rounded-lg cursor-pointer hover:bg-cyan-500/20 transition-colors'
-          onClick={() => setSelectedUser(chat)}
+          onClick={() => setSelectedChat(chat)}
         >
           <div className='flex items-center gap-3'>
             <div className='avatar online'>
