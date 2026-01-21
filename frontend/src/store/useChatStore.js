@@ -25,7 +25,7 @@ export const useChatStore = create((set,get) => ({
         try{
             const res = await axiosInstance.get('/messages/contacts');
             set({allContacts: res.data});
-        }catch(err){
+        }catch(error){
             toast.error(error.response?.data?.message || "Failed to load contacts. Please try again.");
         }finally{
             set({isUserLoading: false});
