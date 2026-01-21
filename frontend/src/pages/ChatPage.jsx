@@ -1,5 +1,4 @@
 import React from 'react'
-// import { useAuthStore } from '../store/useAuthStore.js'
 import BorderAnimatedContainer from '../components/BorderAnimatedContainer.jsx';
 import { useChatStore } from '../store/useChatStore.js';
 import ProfileHeader from '../components/ProfileHeader.jsx';
@@ -11,7 +10,6 @@ import NoConversation from '../components/NoConversation.jsx';
 
 const ChatPage = () => {
 
-  // const { logout, isCheckingAuth } = useAuthStore();
   const { activeTab, selectedChat } = useChatStore();
 
   return (
