@@ -1,17 +1,24 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
+import { io } from "socket.io-client";
 
-export const useAuthStore = create((set) => ({
+const BASE_URL =
+  import.meta.env.MODE === "development" ? "http://localhost:4000" : "/";
+
+export const useAuthStore = create((set, get) => ({
   authUser: null,
   isCheckingAuth: true,
   isSigningUp: false,
   isLoggingIn: false,
+  socket: null,
+  onlineUsers: [],
 
   checkAuth: async () => {
     try {
       const res = await axiosInstance.get("/auth/check");
       set({ authUser: res.data });
+      get().connectSocket();
     } catch (error) {
       console.log("Auth check failed:", error);
       set({ authUser: null });
@@ -27,48 +34,82 @@ export const useAuthStore = create((set) => ({
       set({ authUser: res.data });
 
       toast.success("Account created successfully!");
+
+      get().connectSocket();
     } catch (error) {
-        toast.error(error.response.data.message);
+      toast.error(error.response.data.message);
     } finally {
       set({ isSigningUp: false });
     }
   },
 
-  login : async (data) => {
-    set({ isLoggingIn : true });
+  login: async (data) => {
+    set({ isLoggingIn: true });
     try {
       const res = await axiosInstance.post("/auth/login", data);
       set({ authUser: res.data });
 
       toast.success("Logged in successfully!");
+
+      get().connectSocket();
     } catch (error) {
-        toast.error(error.response?.data?.message || "Login failed. Please try again.");
+      toast.error(
+        error.response?.data?.message || "Login failed. Please try again.",
+      );
     } finally {
       set({ isLoggingIn: false });
     }
   },
 
-  logout : async () => {
+  logout: async () => {
     set({ isCheckingAuth: true });
-    try{
+    try {
       const res = await axiosInstance.post("/auth/logout");
       set({ authUser: null });
       toast.success(res.data.message);
-    }catch(error){
+      get().disconnectSocket();
+    } catch (error) {
       toast.error("Logout failed. Please try again.");
-    }finally{
+    } finally {
       set({ isCheckingAuth: false });
     }
   },
 
-  updateProfile : async (data) => {
-    try{
+  updateProfile: async (data) => {
+    try {
       const res = await axiosInstance.put("/auth/update-profile", data);
       set({ authUser: res.data });
       toast.success("Profile updated successfully!");
-    }catch(error){
-      toast.error(error.response?.data?.message || "Profile update failed. Please try again.");
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          "Profile update failed. Please try again.",
+      );
     }
   },
 
+  connectSocket: () => {
+    const { authUser } = get();
+    if (!authUser || get().socket?.connected) return;
+
+    const socket = io(BASE_URL, { withCredentials: true });
+
+    socket.connect();
+
+    set({ socket });
+
+    // listen for online user
+    socket.on("getOnlineUsers", (userIds) => {
+      set({ onlineUsers: userIds });
+    });
+  },
+
+  disconnectSocket: () => {
+    const socket = get().socket;
+    if (socket?.connected) {
+      socket.off("getOnlineUsers");
+      socket.disconnect();
+    }
+    set({ socket: null, onlineUsers: [] });
+  },
 }));
