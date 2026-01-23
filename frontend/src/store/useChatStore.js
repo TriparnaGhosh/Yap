@@ -69,15 +69,15 @@ export const useChatStore = create((set,get) => ({
             createdAt: new Date().toISOString(),
             isOptimistic: true,
         }
-        // update the ui immidieately after sending message
+        // update the ui immediately after sending message
         set({messages: [...messages, optimisticMessage]})
 
         try{
             const res = await axiosInstance.post(`/messages/send/${selectedChat._id}`, messageData)
-            set({messages: messages.concat(res.data)})
+            set({messages: get().messages.filter(m => m._id !== tempId).concat(res.data)})
         } catch (error) {
-            // remove optimistic message
-            set({messages: messages})
+            // remove optimistic message on failure
+            set({messages: get().messages.filter(m => m._id !== tempId)})
             toast.error(error.response?.data?.message || "Something went wrong!");
         }
     }
